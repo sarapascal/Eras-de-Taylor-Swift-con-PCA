@@ -502,5 +502,5 @@ Definimos el indicador principal como el score en PC1, normalizado a 0–100. Pr
 Los cambios de setlist y versiones (Taylor’s Version) pueden afectar comparabilidad si se amplía la base.
 Las representaciones no son tan alineadas con la línea gráfica, pero se intentó lo más que se pudo.
 Agradezco nuevamente a https://www.kaggle.com/datasets/yukawithdata/taylor-swift-the-eras-tour-official-setlist-data por poner a disposición esta increíble base de datos.
-Cierro este curso muy agradecida y entusiasta por lo mucho aprendido, si bien esta actividad tuvo una dificultad mayor, pude usar una base que me interesa y eso me permitió trabajar con más determinación en llegar a mejores resultados (a pesar de que pasé más tiempo intentando arreglar los colores de las barras por era que en el resto). Gracias por leer! 
+Cierro este curso muy agradecida y entusiasta por lo mucho aprendido, si bien esta actividad tuvo una dificultad mayor, pude usar una base que me interesa y eso me permitió trabajar con más determinación en llegar a mejores resultados (a pesar de que pasé más tiempo intentando arreglar los colores de las barras por era que en el resto). Gracias por leer!
 

@@ -6,10 +6,7 @@ Este proyecto explora patrones musicales en canciones del **Eras Tour** mediante
 
 ## 📂 Estructura del proyecto
 ├── data/                # Datos originales y procesados
-├── scripts/             # Código en R para análisis y visualización
-│   ├── 01_preprocesamiento.R
-│   ├── 02_pca.R
-│   ├── 03_visualizaciones.R
+├── script/             # Código en R para análisis y visualización
 ├── outputs/             # Gráficos (biplot, scree plot, heatmap)
 ├── README.md            # Este archivo
 
@@ -57,33 +54,15 @@ El proyecto utiliza una **paleta Swifty** y un tema personalizado (`eras_theme`)
 ## 📊 Visualización de datos
 
 1. Scree Plot PCA
-<p align="center">
-  outputs/Heatmap de cargas.png
-</p>
 
-3. Varianza Explicada PCA
-<p align="center">
-  outputs/Varianza explicada Scree Plot.png
-</p>
+2. Varianza Explicada PCA
+
+3. Indicador 1 PCA **Intensidad/Energía** por Eras
   
-5. Indicador 1 PCA **Intensidad/Energía** por Eras
-<p align="center">
-  outputs/Indicador PC1 por Era.png
-</p>
-  
-7. Relación entre observaciones y variables
-<p align="center">
-  outputs/Relación entre observaciones y variables.png
-</p>
+4. Relación entre observaciones y variables
 
-9. Heatmap
-<p align="center">
-  outputs/Heatmap de cargas.png
-</p>
+5. Heatmap
 
-11. Mapa **Intensidad/Energía** vs **Bailabilidad/Positividad** de las canciones
-<p align="center">
-  outputs/Mapa Intensidad Energía vs Bailabilidad Positividad de canciones.png
-</p>
+6. Mapa **Intensidad/Energía** vs **Bailabilidad/Positividad** de las canciones
 
 
