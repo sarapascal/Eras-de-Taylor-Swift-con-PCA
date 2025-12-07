@@ -10,10 +10,10 @@ Fue un gran desafío, pero fue una forma entretenida de aprender a hacer PCA.
 ---
 
 ## 📂 Estructura del proyecto
-- ├── data/                # Datos originales y procesados
-- ├── script/             # Código en R para análisis y visualización
-- ├── outputs/             # Gráficos (no están en la carpeta) 
-- ├── README.md            # Este archivo
+-    ├── data/                # Datos originales y procesados
+-    ├── script/             # Código en R para análisis y visualización
+-    ├── outputs/             # Gráficos (no están en la carpeta) 
+-    ├── README.md            # Este archivo
 
 ---
 
