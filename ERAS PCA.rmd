@@ -11,19 +11,147 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Vamos a realizar un Análisis de componentes principales en base a datos del Eras Tour de Taylor Swift. Utilizaremos una base de Kaggle que ya habíamos utilizado antes, pero con más profundidad.
 
-# Instalamos las librerías que vamos a utilizar
+# Trabajo previo
+## Instalamos las librerías que vamos a utilizar
 library(tidyverse)
 library(stringr)
 library(ggplot2)
 library(scales)
 library(ggrepel)
+library(dplyr)
 
 
-# Cargamos la base de datos
+## Cargamos la base de datos
 df <- readr::read_csv("~/Desktop/Datos/ERAS PCA/ERAS PCA/era_tour_setlist.csv")
 
+## Agregamos la línea gráfica que queremos utilizar
+swifty_colors <- list(
+  lavanda = "#CDB4DB",
+  morado  = "#6A0572",
+  rosa    = "#FF69B4",
+  negro   = "#1F1F1F",
+  gris    = "#9E9E9E",
+  crema   = "#F7F2F7"
+)
 
-# Con los nombres de la canciones definiremos las eras, haciendo un etiquetado de cada fila de la base para indicar a qué “era” (álbum) pertenece cada track. Esto nos va a permitir, agrupar y comparar el indicador PCA por era del tour más adelante.
+# Paletas por era (ajustadas según tu pedido)
+swifty_era_pal <- list(
+  Lover      = c("#FFADBC", "#FF7AB8", "#FFC6D9"),
+  Reputation = c("#1F1F1F", "#4B4B4B", "#9E9E9E"),
+  Red        = c("#E3252B", "#EF6A6A", "#F3A5A5"),
+  "1989"     = c("#76BEE1", "#9FD4EE", "#CFEAF8"),
+  Midnights  = c("#0B1D4D", "#364F6B", "#6C7B95"),
+  Folklore   = c("#CDC9C1", "#CDC9C2", "#CDC9C3"),
+  Evermore   = c("#C5AC90", "#C5AC91", "#C5AC93"),
+  TTPD       = c("#7B7D7D", "#B0B3B5", "#DEE1E3"),
+  Fearless   = c("#DAA520", "#E1B000", "#FFD700"),
+  "Speak Now"= c("#9B59B6", "#8E44AD", "#C39BD3")
+)
+
+# Tema
+theme_swifty <- function(base_family = "serif", base_size = 12) {
+  ggplot2::theme_minimal(base_family = base_family, base_size = base_size) +
+    ggplot2::theme(
+      plot.background   = ggplot2::element_rect(fill = swifty_colors$crema, color = NA),
+      panel.grid.minor  = ggplot2::element_blank(),
+      panel.grid.major  = ggplot2::element_line(color = swifty_colors$lavanda, linewidth = 0.15),
+      plot.title        = ggplot2::element_text(color = swifty_colors$morado, face = "bold", size = base_size + 3),
+      plot.subtitle     = ggplot2::element_text(color = swifty_colors$gris, size = base_size),
+      axis.title.x      = ggplot2::element_text(color = swifty_colors$negro, face = "bold"),
+      axis.title.y      = ggplot2::element_text(color = swifty_colors$negro, face = "bold"),
+      axis.text         = ggplot2::element_text(color = swifty_colors$negro),
+      legend.position   = "right",
+      legend.title      = ggplot2::element_text(face = "bold", color = swifty_colors$morado)
+    )
+}
+eras_theme <- theme_swifty
+
+# Tema Swifty con 'family' explícito en títulos y subtítulos
+theme_swifty <- function(base_family = "serif", base_size = 12) {
+  ggplot2::theme_minimal(base_family = base_family, base_size = base_size) +
+    ggplot2::theme(
+      plot.background   = ggplot2::element_rect(fill = swifty_colors$crema, color = NA),
+      panel.grid.minor  = ggplot2::element_blank(),
+      panel.grid.major  = ggplot2::element_line(color = swifty_colors$lavanda, linewidth = 0.15),
+      plot.title        = ggplot2::element_text(
+        family = base_family, color = swifty_colors$morado, face = "bold", size = base_size + 3
+      ),
+      plot.subtitle     = ggplot2::element_text(
+        family = base_family, color = swifty_colors$gris, size = base_size
+      ),
+      axis.title.x      = ggplot2::element_text(family = base_family, color = swifty_colors$negro, face = "bold"),
+      axis.title.y      = ggplot2::element_text(family = base_family, color = swifty_colors$negro, face = "bold"),
+      axis.text         = ggplot2::element_text(family = base_family, color = swifty_colors$negro),
+      legend.position   = "right",
+      legend.title      = ggplot2::element_text(family = base_family, face = "bold", color = swifty_colors$morado)
+    )
+}
+eras_theme <- theme_swifty
+
+# Normalizamos los nombres de era para asegurar match con paleta
+indicador_era <- indicador_era %>%
+  dplyr::mutate(
+    era_norm = dplyr::case_when(
+      tolower(era) == "folklore" ~ "Folklore",
+      tolower(era) == "evermore" ~ "Evermore",
+      tolower(era) == "fearless" ~ "Fearless",
+      TRUE ~ era
+    )
+  )
+
+# Construye tonos por era (usando los nombres normalizados presentes)
+eras_presentes <- unique(indicador_era$era_norm)
+
+# Paleta corregida: Evermore = beige, Folklore = gris, Fearless = dorado (asegúrate de tener esta en tu swifty_era_pal)
+fill_colors <- c(
+  Lover      = swifty_era_pal$Lover[1],
+  Reputation = swifty_era_pal$Reputation[1],
+  Red        = swifty_era_pal$Red[1],
+  "1989"     = swifty_era_pal[["1989"]][1],
+  Midnights  = swifty_era_pal$Midnights[1],
+  Folklore   = swifty_era_pal$Folklore[1],  # gris
+  Evermore   = swifty_era_pal$Evermore[1],  # beige
+  TTPD       = swifty_era_pal$TTPD[1],
+  Fearless   = swifty_era_pal$Fearless[1],  # dorado
+  "Speak Now"= swifty_era_pal[["Speak Now"]][1]
+)
+# Filtra solo las eras presentes (importante para evitar NAs)
+fill_colors <- fill_colors[eras_presentes]
+
+# Colores de borde (segundo tono) y de etiqueta (tercer tono)
+border_colors <- c(
+  Lover      = swifty_era_pal$Lover[2],
+  Reputation = swifty_era_pal$Reputation[2],
+  Red        = swifty_era_pal$Red[2],
+  "1989"     = swifty_era_pal[["1989"]][2],
+  Midnights  = swifty_era_pal$Midnights[2],
+  Folklore   = swifty_era_pal$Folklore[2],  # gris medio
+  Evermore   = swifty_era_pal$Evermore[2],  # beige medio
+  TTPD       = swifty_era_pal$TTPD[2],
+  Fearless   = swifty_era_pal$Fearless[2],  # dorado medio
+  "Speak Now"= swifty_era_pal[["Speak Now"]][2]
+)
+border_colors <- border_colors[eras_presentes]
+
+label_colors <- c(
+  Lover      = swifty_era_pal$Lover[3],
+  Reputation = swifty_era_pal$Reputation[3],
+  Red        = swifty_era_pal$Red[3],
+  "1989"     = swifty_era_pal[["1989"]][3],
+  Midnights  = swifty_era_pal$Midnights[3],
+  Folklore   = swifty_era_pal$Folklore[3],  # gris claro
+  Evermore   = swifty_era_pal$Evermore[3],  # beige claro
+  TTPD       = swifty_era_pal$TTPD[3],
+  Fearless   = swifty_era_pal$Fearless[3],  # dorado claro
+  "Speak Now"= swifty_era_pal[["Speak Now"]][3]
+)
+label_colors <- label_colors[eras_presentes]
+
+
+
+# Comenzamos con nuestro análisis
+
+## Con los nombres de la canciones definiremos las eras, haciendo un etiquetado de cada fila de la base para indicar a qué “era” (álbum) pertenece cada track. Esto nos va a permitir, agrupar y comparar el indicador PCA por era del tour más adelante.
 
 df <- df %>%
   mutate(era = case_when(
@@ -60,8 +188,8 @@ df <- df %>%
     TRUE ~ NA_character_
     ))
 
-# Revisando... para ver si todo está perfectly fine
-## ¿Cuáles son las canciones sin era? (debería idealmente ser 0)
+## Revisando... para ver si todo está perfectly fine
+## ¿Cuáles son las canciones sin era? (debe ser 0)
 df %>% filter(is.na(era)) %>% distinct(track_name)
 
 ## Conteo por era
@@ -69,10 +197,10 @@ df %>% count(era, sort = TRUE)
 
 
 # Seleccionaremos las variables y escala para que funcione nuestro PCA. 
-## Vamos a seleccionar las variables numéricas que van a entrar al PCA (en formato numérico, sin NA), después filtraremos outliers obvios (por ejemplo, duraciones demasiado cortas/largas que no son representativas del set) y vamos a estandarizar/escalar cada variable para que todas tengan media 0 y desvío estándar 1.
+## Vamos a seleccionar las variables numéricas que van a entrar al PCA (en formato numérico, sin NA), después deberíamos filtrar outliers obvios (pero el principal era duración y no queremos borrar All too well) y luego vamos a estandarizar/escalar cada variable para que todas tengan media 0 y desvío estándar 1.
 
-##Esta base tiene variables acústicas, así que utilizaremos esa información y también otras como duración y popularidad.
-## En este caso, haremos la escala sin reducir por duración porque a pesar de que "All too well" se sale del rango normal o promedio es una parte importante del show. Veremos como se refleja esto después...
+## Esta base tiene variables acústicas, así que utilizaremos esa información y también otras como duración y popularidad.
+## En este caso, haremos la escala sin reducir por duración porque a pesar de que "All too well" se sale del rango normal o promedio porque es una parte importante del show. Veremos como se refleja esto después...
 ## Escalamos con mutate(across(..., scale)), lo que asegura que todas las variables tengan media 0 y sd 1.
 
 variables <- c("danceability","energy","valence","tempo","loudness",
@@ -98,32 +226,55 @@ pca <- prcomp(X, center = FALSE, scale. = FALSE)
 ## Resumen rápido del PCA (varianza explicada por cada componente)
 summary(pca)
 
-
 # Proporción de varianza explicada por cada PC
 var_exp <- pca$sdev^2 / sum(pca$sdev^2)
+acum_var <- cumsum(var_exp)
 
-# Scree plot base R
-plot(var_exp, type = "b", pch = 19,
+# Comenzamos la representación visual
+
+# Scree Plot base R
+plot(var_exp, type = "b", pch = 19, col = eras_color,
      xlab = "Componente principal",
      ylab = "Proporción de varianza explicada",
-     main = "Scree Plot (PCA)")
-abline(h = 0.1, col = "gray70", lty = 2) 
+     main = "Scree Plot (PCA)",
+     xaxt = "n")
+axis(1, at = seq_along(var_exp), labels = paste0("PC", seq_along(var_exp)))
+abline(h = 0.1, col = eras_grid, lty = 2)
+
+## Añadimos anotaciones con % de varianza
+text(x = seq_along(var_exp), y = var_exp + 0.02,
+     labels = paste0(round(var_exp * 100, 1), "%"),
+     col = eras_color, cex = 0.8)
+
+## Añadimos línea acumulada
+lines(acum_var, type = "b", col = "#FF69B4", lty = 3)
+text(length(acum_var), tail(acum_var, 1) - 0.05,
+     paste("Acumulada:", round(tail(acum_var, 1) * 100, 1), "%"),
+     col = "#FF69B4", cex = 0.8)
 
 # Versión ggplot 
 library(ggplot2)
-df_varpc <- tibble::tibble(PC = paste0("PC", seq_along(var_exp)),
-                         VarExp = var_exp)
+df_varpc <- tibble::tibble(
+  PC = paste0("PC", seq_along(var_exp)),
+  VarExp = var_exp
+)
 
 ggplot(df_varpc, aes(x = PC, y = VarExp, group = 1)) +
-  geom_point(size = 2) + geom_line() +
+  geom_point(size = 2) +
+  geom_line() +
+  # Etiquetas de porcentaje sobre cada punto
+  geom_text(aes(label = scales::percent(VarExp, accuracy = 0.1)),
+            vjust = -0.8, size = 2.3) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(title = "Scree Plot (PCA)", x = "Componente principal", y = "Varianza explicada") +
-  theme_minimal()
+  labs(title = "Scree Plot (PCA)",
+       x = "Componente principal",
+       y = "Varianza explicada") +
+  eras_theme()
 
 # Varianza acumulada
 acum_var <- cumsum(var_exp)
 
-# Tabla rápida en consola
+# Tabla rápida para consola
 data.frame(PC = paste0("PC", seq_along(var_exp)),
            VarExp = round(var_exp, 4),
            AcumVar = round(acum_var, 4))
@@ -143,7 +294,7 @@ sort(loadings[,2], decreasing = TRUE)
 #¿Qué son estos resultados?
 ##Si vemos cargas altas positivas en energy, loudness, tempo y negativas en acousticness → PC1 ≈ “Intensidad/Energía”. Y Si danceability y valence cargan alto en PC2 → PC2 ≈ “Bailabilidad/Positividad”. Speechiness e instrumentalness suelen matizar (más hablado vs. más instrumental).
 
-# Dejémosolo en una tablita
+# Dejémoslo en una tablita
 knitr::kable(round(loadings[,1:3], 3), caption = "Cargas de las variables en PC1–PC3")
 
 # Scores (coordenadas de cada canción en los PCs)
@@ -183,60 +334,128 @@ indicador_era <- df_scores %>%
 knitr::kable(indicador_era, caption = "Indicador promedio por era (PC1 → 0–100)")
 
 # Barras por era
-library(ggplot2)
-ggplot(indicador_era, aes(x = reorder(era, indicador_era), y = indicador_era)) +
-  geom_col(fill = "#7B68EE") +
+ggplot(indicador_era,
+       aes(x = reorder(era_norm, indicador_era), y = indicador_era)) +
+  geom_col(aes(fill = era_norm), linewidth = 0.0, color = NA) +
+  geom_col(fill = NA, color = NA) +
+  geom_col(aes(y = indicador_era),
+           fill = NA,
+           color = border_colors[indicador_era$era_norm],
+           linewidth = 0.6) +
+  geom_text(aes(label = round(indicador_era, 1)),
+            hjust = -0.1,
+            size = 3.5,
+            color = label_colors[indicador_era$era_norm]) +
   coord_flip() +
-  labs(title = "Indicador PCA (PC1) promedio por Era",
-       x = "Era", y = "Indicador 0–100") +
-  theme_minimal()
+  scale_fill_manual(values = fill_colors) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.08))) +
+  labs(
+    title = "Indicador PCA (PC1) promedio por Era",
+    subtitle = "Evermore (beige), Folklore (gris), Fearless (dorado). Tono 1 = relleno, Tono 2 = borde, Tono 3 = etiquetas",
+    x = "Era",
+    y = "Indicador 0–100"
+  ) +
+  eras_theme(base_family = "serif")
+  guides(fill = "none")
 
-# Biplot base: PCs y vectores de variables (diagnóstico rápido)
-biplot(pca, xlabs = rep(".", nrow(df_variables)))
-title("Biplot PC1 vs PC2")
+# PCs y vectores de variables (diagnóstico rápido)
+var_exp <- (pca$sdev^2) / sum(pca$sdev^2)
+pc1_pct <- 100 * var_exp[1]
+pc2_pct <- 100 * var_exp[2]
+total12 <- pc1_pct + pc2_pct
+
+## Construimos data para ggplot: scores (observaciones) y loadings (variables)
+scores <- as.data.frame(pca$x[, 1:2]) %>%
+  rename(PC1 = 1, PC2 = 2)
+
+loadings <- as.data.frame(pca$rotation[, 1:2]) %>%
+  rename(PC1 = 1, PC2 = 2) %>%
+  mutate(var = rownames(pca$rotation))
+
+arrow_scale <- 4
+titulo    <- "Relación entre observaciones y variables en el espacio PCA (PC1–PC2)"
+subtitulo <- sprintf("PC1 explica %.1f%% y PC2 %.1f%% (%.1f%% acumulado)", pc1_pct, pc2_pct, total12)
+
+ggplot() +
+  # Observaciones (scores)
+  geom_point(data = scores, aes(x = PC1, y = PC2),
+             color = "purple", alpha = 0.7, size = 2) +
+  # Vectores de variables (loadings)
+  geom_segment(data = loadings,
+               aes(x = 0, y = 0, xend = PC1 * arrow_scale, yend = PC2 * arrow_scale),
+               arrow = arrow(length = unit(0.08, "inches")),
+               color = "pink", linewidth = 0.5) +
+  geom_text(data = loadings,
+            aes(x = PC1 * arrow_scale, y = PC2 * arrow_scale, label = var),
+            color = "black", size = 3, vjust = -0.4) +
+  labs(
+    title = titulo,
+    subtitle = subtitulo,
+    x = sprintf("PC1 (%.1f%%)", pc1_pct),
+    y = sprintf("PC2 (%.1f%%)", pc2_pct)
+  ) +
+  eras_theme(base_family = "serif")
 
 ### PC1 es alto en r paste(names(sort(loadings[,1], decreasing = TRUE)[1:3]), collapse = ", ") y bajo en r names(sort(loadings[,1], decreasing = FALSE)[1]); y lo interpretamos como ‘Intensidad/Energía’. El PC2 es alto en r paste(names(sort(loadings[,2], decreasing = TRUE)[1:3]), collapse = ", "), interpretado como ‘Bailabilidad/Positividad’.”
 
 ### Definimos el indicador principal como el score en PC1, normalizado a 0–100 para facilitar la lectura. Quedando el ranking de canciones y agregación por era.
 
-### Las variables de entrada se estandarizaron (media 0, sd 1). No se filtró duración (se mantuvo ‘All Too Well (10 Minute Version)’ por su relevancia en el show). 
-
+### Las variables de entrada se estandarizaron (media 0, sd 1). No se filtró duración (se mantuvo ‘All Too Well (10 Minute Version)’ por su relevancia en el show).
 
 
 # --- Heatmap de loadings PC1–PC3 ---
 ## Tomamos las cargas y pasamos a formato largo
 loadings <- pca$rotation
-loadings_df <- loadings[, 1:3] %>%            # selecciona PC1, PC2, PC3
+loadings_df <- loadings[, 1:3] %>%
   as.data.frame() %>%
-  rownames_to_column(var = "variable") %>%
-  pivot_longer(cols = starts_with("PC"),
-               names_to = "PC",
-               values_to = "loading")
+  tibble::rownames_to_column(var = "variable") %>%
+  tidyr::pivot_longer(
+    cols = dplyr::starts_with("PC"),
+    names_to = "PC",
+    values_to = "loading"
+  )
 
 # Ordenamos variables por la magnitud de su contribución en PC1 (para visualizarlas)
 vars_order <- loadings_df %>%
-  filter(PC == "PC1") %>%
-  arrange(desc(loading)) %>%
-  pull(variable)
+  dplyr::filter(PC == "PC1") %>%
+  dplyr::arrange(dplyr::desc(loading)) %>%
+  dplyr::pull(variable)
 
+# Etiquetas descriptivas para las PCs
 loadings_df <- loadings_df %>%
-  mutate(variable = factor(variable, levels = vars_order),
-         PC = factor(PC, levels = c("PC1", "PC2", "PC3")))
-         
+  dplyr::mutate(
+    variable = factor(variable, levels = vars_order),
+    PC = factor(
+      PC,
+      levels = c("PC1", "PC2", "PC3"),
+      labels = c(
+        "PC1 = Intensidad/Energía",
+        "PC2 = Bailabilidad/Positividad",
+        "PC3 = Textura/Acústico–Vocal"
+      )
+    )
+  )
 
 # Heatmap
 ggplot(loadings_df, aes(x = PC, y = variable, fill = loading)) +
   geom_tile(color = "white") +
-  scale_fill_gradient2(low = "#1f77b4", mid = "white", high = "#d62728",
-                       midpoint = 0, limits = c(min(loadings_df$loading), max(loadings_df$loading)),
-                       name = "Carga") +
-  labs(title = "Heatmap de cargas (loadings) en PC1–PC3",
-       x = "Componente principal", y = "Variable") +
-  theme_minimal() +
+  scale_fill_gradient2(
+    low = "#C7A8CB", mid = "white", high = "#B5E5F8",
+    midpoint = 0,
+    limits = c(min(loadings_df$loading), max(loadings_df$loading)),
+    name = "Carga"
+  ) +
+  labs(
+    title = "Heatmap de cargas (loadings) en PC1–PC3",
+    x = "Componente principal",
+    y = "Variable"
+  ) +
+  eras_theme() +
   theme(axis.text.y = element_text(size = 10))
   
+  
 
-# Seleccionamos top N por magnitud en PC1 (ajusta N si quieres menos/más etiquetas)
+# Seleccionamos top N por magnitud en PC1 
 N <- 12
 df_scores <- df_scores %>%
   mutate(abs_pc1 = abs(indicador_pc1))
@@ -258,16 +477,17 @@ ggplot(df_scores, aes(x = indicador_pc1, y = indicador_pc2)) +
                   max.overlaps = 100,
                   seed = 123,
                   min.segment.length = 0) +
-  labs(title = "Mapa PC1 vs PC2 — canciones del Eras Tour",
+  labs(title = "Mapa PC1 Intensidad/Energía vs PC2 	
+Bailabilidad/Positividad de canciones del Eras Tour",
        x = "PC1 (Intensidad/Energía, según cargas)",
        y = "PC2 (Bailabilidad/Positividad, según cargas)") +
-  theme_minimal()
+  eras_theme()
 
 
 #📄 Conclusiones
 
 ## Resumen del PCA:
-### El PC1 explica r scales::percent(var_exp[1]) y el PC2 r scales::percent(var_exp[2]) de la varianza; en conjunto suman r scales::percent(sum(var_exp[1:2])).
+### El PC1 Intensidad/Energía explica r scales::percent(var_exp[1]) y el PC2 Bailabilidad/Positividad r scales::percent(var_exp[2]) de la varianza; en conjunto suman r scales::percent(sum(var_exp[1:2])).
 PC1 — Intensidad/Energía: altas cargas en energy, loudness, tempo y bajas en acousticness.
 PC2 — Bailabilidad/Positividad: dominado por danceability y valence.
 PC3 — Textura/Acústico–Vocal (o el nombre que definiste): matizado por speechiness, instrumentalness, liveness.
@@ -280,163 +500,7 @@ Definimos el indicador principal como el score en PC1, normalizado a 0–100. Pr
 
 ### Limitaciones:
 Los cambios de setlist y versiones (Taylor’s Version) pueden afectar comparabilidad si se amplía la base.
-
-
-
-
-# BLOQUE FINAL — Nombres de PCs, exportaciones, estilo Eras, biplot estilizado y guardado de figuras
-
-## Nombres interpretativos de componentes
-pc_names <- c(
-  PC1 = "Intensidad/Energía",
-  PC2 = "Bailabilidad/Positividad",
-  PC3 = "Textura/Acústico–Vocal"
-)
-
-# Paleta y estilo Eras Tour (lavanda/rosa/morado)
-eras_colors <- list(
-  lavanda = "#CDB4DB",
-  rosa    = "#FF69B4",
-  morado  = "#6A0572",
-  negro   = "#1F1F1F",
-  gris    = "#9E9E9E"
-)
-
-# Tipografía: Soulmate de Lover
-eras_theme <- function(base_family = "soulmate") {
-  theme_minimal(base_family = base_family) +
-    theme(
-      plot.title      = element_text(face = "bold", size = 16, color = eras_colors$morado),
-      plot.subtitle   = element_text(size = 11, color = eras_colors$gris),
-      axis.title.x    = element_text(size = 12),
-      axis.title.y    = element_text(size = 12),
-      axis.text       = element_text(color = eras_colors$negro),
-      panel.grid.minor= element_blank()
-    )
-}
-
-# Scree Plot (ggplot) con estilo Eras
-df_varpc <- tibble::tibble(PC = paste0("PC", seq_along(var_exp)),
-                           VarExp = var_exp)
-df_varpc$PC <- factor(df_varpc$PC, levels = df_varpc$PC)
-
-p_scree <- ggplot(df_varpc, aes(x = PC, y = VarExp, group = 1)) +
-  geom_point(size = 2, color = eras_colors$morado) +
-  geom_line(color = eras_colors$morado) +
-  scale_y_continuous(labels = percent_format(accuracy = 1)) +
-  labs(title = "Scree Plot (PCA)",
-       subtitle = "Proporción de varianza explicada por componente",
-       x = "Componente principal", y = "Varianza explicada") +
-  eras_theme()
-
-# 5) Heatmap de cargas (PC1–PC3) con estilo Eras y subtítulo con nombres
-loadings <- pca$rotation
-loadings_df <- loadings[, 1:3] %>%
-  as.data.frame() %>%
-  tibble::rownames_to_column(var = "variable") %>%
-  tidyr::pivot_longer(cols = dplyr::starts_with("PC"),
-                      names_to = "PC", values_to = "loading")
-
-vars_order <- loadings_df %>%
-  dplyr::filter(PC == "PC1") %>%
-  dplyr::arrange(dplyr::desc(loading)) %>%
-  dplyr::pull(variable)
-
-loadings_df <- loadings_df %>%
-  dplyr::mutate(variable = factor(variable, levels = vars_order),
-                PC = factor(PC, levels = c("PC1", "PC2", "PC3")))
-
-p_heat <- ggplot(loadings_df, aes(x = PC, y = variable, fill = loading)) +
-  geom_tile(color = "white") +
-  scale_fill_gradient2(
-    low = eras_colors$lavanda, mid = "white", high = eras_colors$morado,
-    midpoint = 0, name = "Carga"
-  ) +
-  labs(
-    title = "Cargas por componente (PC1–PC3)",
-    subtitle = paste("PC1:", pc_names["PC1"], "| PC2:", pc_names["PC2"], "| PC3:", pc_names["PC3"]),
-    x = "Componente", y = "Variable"
-  ) +
-  eras_theme()
-
-# 6) Scatter PC1 vs PC2 con etiquetas (ggrepel) y ejes con nombres
-#    (Asegúrate de tener df_scores con indicador_pc1, indicador_pc2, track_name)
-if (!requireNamespace("ggrepel", quietly = TRUE)) {
-  install.packages("ggrepel")
-}
-library(ggrepel)
-
-N <- 12
-df_scores <- df_scores %>% dplyr::mutate(abs_pc1 = abs(indicador_pc1))
-df_labels <- df_scores %>% dplyr::arrange(dplyr::desc(abs_pc1)) %>% dplyr::slice(1:N)
-
-p_scatter <- ggplot(df_scores, aes(x = indicador_pc1, y = indicador_pc2)) +
-  geom_hline(yintercept = 0, color = eras_colors$gris) +
-  geom_vline(xintercept = 0, color = eras_colors$gris) +
-  geom_point(alpha = 0.6, color = eras_colors$rosa, size = 2) +
-  geom_point(data = df_labels, color = eras_colors$morado, size = 3) +
-  geom_text_repel(
-    data = df_labels, aes(label = track_name),
-    size = 3.2, box.padding = 0.4, point.padding = 0.2,
-    max.overlaps = Inf, seed = 123, min.segment.length = 0,
-    color = eras_colors$negro
-  ) +
-  labs(
-    title = "Mapa PC1 vs PC2 — canciones del Eras Tour",
-    subtitle = paste("Ejes:", pc_names["PC1"], "y", pc_names["PC2"]),
-    x = paste0("PC1 — ", pc_names["PC1"]),
-    y = paste0("PC2 — ", pc_names["PC2"])
-  ) +
-  eras_theme()
-
-# 7) Barras por era (si existe 'indicador_era') con estilo Eras
-p_era <- NULL
-if (exists("indicador_era")) {
-  p_era <- ggplot(indicador_era, aes(x = reorder(era, indicador_era), y = indicador_era)) +
-    geom_col(fill = eras_colors$lavanda) +
-    coord_flip() +
-    labs(
-      title = "Indicador PCA (PC1) promedio por Era",
-      subtitle = paste("PC1:", pc_names["PC1"]),
-      x = "Era", y = "Indicador 0–100"
-    ) +
-    eras_theme()
-}
-
-# 8) Biplot estilizado con vectores y nombres (factoextra)
-#    Instala/ carga factoextra
-if (!requireNamespace("factoextra", quietly = TRUE)) {
-  install.packages("factoextra")
-}
-library(factoextra)
-
-# Nota: fviz_pca_biplot utiliza internamente los loadings y scores de 'pca'
-p_biplot <- fviz_pca_biplot(
-  pca, repel = TRUE,
-  col.var = eras_colors$morado, col.ind = eras_colors$rosa,
-  label = "var", # etiqueta variables (vectores); cambiar a "all" para incluir puntos
-  geom.ind = "point", pointsize = 2,
-  title = paste("Biplot PCA —", pc_names["PC1"], "vs", pc_names["PC2"])
-) + eras_theme()
-
-# 9) Guardar figuras en 'report/'
-if (!dir.exists("report")) dir.create("report", recursive = TRUE)
-
-ggsave("report/scree_plot_pca.png", p_scree, width = 8, height = 4.5, dpi = 300)
-ggsave("report/heatmap_loadings_pc1_pc3.png", p_heat, width = 8, height = 5.5, dpi = 300)
-ggsave("report/scatter_pc1_pc2_top_labels.png", p_scatter, width = 8, height = 5.5, dpi = 300)
-if (!is.null(p_era)) {
-  ggsave("report/indicador_por_era.png", p_era, width = 7.5, height = 5, dpi = 300)
-}
-ggsave("report/biplot_pca.png", p_biplot, width = 7.5, height = 5.5, dpi = 300)
-
-# 10) Tabla resumen con nombres y varianza (para el informe)
-pc_table <- tibble::tibble(
-  PC          = names(pc_names),
-  Nombre      = unname(pc_names),
-  Varianza    = round(var_exp[1:3], 3),
-  Varianza_pct= percent(var_exp[1:3])
-)
-knitr::kable(pc_table, caption = "Nombres e importancia de los primeros tres componentes")
-
+Las representaciones no son tan alineadas con la línea gráfica, pero se intentó lo más que se pudo.
+Agradezco nuevamente a https://www.kaggle.com/datasets/yukawithdata/taylor-swift-the-eras-tour-official-setlist-data por poner a disposición esta increíble base de datos.
+Cierro este curso muy agradecida y entusiasta por lo mucho aprendido, si bien esta actividad tuvo una dificultad mayor, pude usar una base que me interesa y eso me permitió trabajar con más determinación en llegar a mejores resultados (a pesar de que pasé más tiempo intentando arreglar los colores de las barras por era que en el resto). Gracias por leer! 
 
