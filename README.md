@@ -57,8 +57,33 @@ El proyecto utiliza una **paleta Swifty** y un tema personalizado (`eras_theme`)
 ## 📊 Visualización de datos
 
 1. Scree Plot PCA
+<p align="center">
+  outputs/Heatmap de cargas.png
+</p>
+
 3. Varianza Explicada PCA
-4. Indicador 1 PCA **Intensidad/Energía** por Eras
-5. Relación entre observaciones y variables
-6. Heatmap
-7. Mapa **Intensidad/Energía** vs **Bailabilidad/Positividad** de las canciones
+<p align="center">
+  outputs/Varianza explicada Scree Plot.png
+</p>
+  
+5. Indicador 1 PCA **Intensidad/Energía** por Eras
+<p align="center">
+  outputs/Indicador PC1 por Era.png
+</p>
+  
+7. Relación entre observaciones y variables
+<p align="center">
+  outputs/Relación entre observaciones y variables.png
+</p>
+
+9. Heatmap
+<p align="center">
+  outputs/Heatmap de cargas.png
+</p>
+
+11. Mapa **Intensidad/Energía** vs **Bailabilidad/Positividad** de las canciones
+<p align="center">
+  outputs/Mapa Intensidad Energía vs Bailabilidad Positividad de canciones.png
+</p>
+
+
