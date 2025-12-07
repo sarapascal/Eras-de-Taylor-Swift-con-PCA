@@ -21,24 +21,29 @@ Fue un gran desafío, pero fue una forma entretenida de aprender a hacer PCA.
 
 - 🧹 **Preprocesamiento**: Limpieza y etiquetado de canciones por era.
 - 📋 **Análisis PCA**: Reducción de dimensionalidad y cálculo de varianza explicada.
-- 📊 **Visualizaciones**:
-1. Scree Plot PCA
+- 📊 **Visualizaciones**: Los gráficos revelan cómo se organiza la diversidad musical del Eras Tour en dos dimensiones clave acá los vamos a revisar:
+1. **Scree Plot PCA**
+- Este gráfico muestra la proporción de varianza explicada por cada componente principal, destacando que PC1 (Intensidad/Energía) y PC2 (Acústico/Folk) concentran la mayor parte de la información.
    <img width="1222" height="994" alt="Scree Plot PCA" src="https://github.com/user-attachments/assets/db863dd8-483b-4bb8-8ee0-9d16b9c2ba3f" />
 
-3. Varianza Explicada PCA
+2. **Varianza Explicada PCA**
+   - Este gráfico muestra la proporción de varianza explicada por cada componente principal, destacando que PC1 (Intensidad/Energía) y PC2 (Acústico/Folk) concentran la mayor parte de la información.
 <img width="1014" height="824" alt="Varianza explicada Scree Plot" src="https://github.com/user-attachments/assets/847f356e-97da-4612-be93-53a24929bddd" />
-
    
-5. Indicador 1 PCA **Intensidad/Energía** por Eras
+3. **Indicador 1 PCA **Intensidad/Energía** por Eras**
+- Este gráfico también muestra el promedio de PC1 (Intensidad/Energía) por era, evidenciando qué álbumes son más dinámicos y cuáles más acústicos.
 <img width="1386" height="994" alt="Indicador PC1 por Era" src="https://github.com/user-attachments/assets/448c9294-8296-4fa2-aa97-02d8995e9ca4" />
    
-7. Relación entre observaciones y variables
+4. **Relación entre observaciones y variables**
+- Este gráfico revela qué variables influyen en cada componente: PC1 está dominado por métricas de energía y volumen, mientras PC2 refleja atributos acústicos y de positividad. Permite interpretar cómo cada característica contribuye a la estructura del PCA. 
 <img width="1334" height="994" alt="Relación entre observaciones y variables" src="https://github.com/user-attachments/assets/fa403f63-7b3c-402c-a53b-a9b806e97291" />
 
-9. Heatmap
+5. **Heatmap**
+- Evidencia patrones por era, destacando cómo álbumes contrastan en energía y atmósfera. En conjunto, el PCA explica cómo estas dimensiones capturan las diferencias esenciales entre eras y estilos.
 <img width="1652" height="994" alt="Heatmap de cargas" src="https://github.com/user-attachments/assets/d2b71e5f-7a92-4b59-b8eb-ddf8053a092c" />
    
-11. Mapa **Intensidad/Energía** vs **Bailabilidad/Positividad** de las canciones
+6. **Mapa **Intensidad/Energía** vs **Bailabilidad/Positividad** de las canciones**
+- Este biplot combina PC1 (Intensidad/Energía) y PC2 (Acústico/Folk), mostrando cómo se distribuyen las canciones entre potencia y atmósfera. Canciones más bailables y positivas se agrupan hacia un extremo, mientras las más introspectivas se ubican en el otro.
 <img width="1652" height="994" alt="Mapa Intensidad Energía vs Bailabilidad Positividad de canciones" src="https://github.com/user-attachments/assets/1bd59505-8e98-4fbd-a00d-039e7939a0c2" />
 
 
