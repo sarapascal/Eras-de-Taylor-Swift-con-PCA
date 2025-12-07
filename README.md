@@ -56,4 +56,9 @@ El proyecto utiliza una **paleta Swifty** y un tema personalizado (`eras_theme`)
    cd eras-tour-pca
 2. Ejecuta el script
 
+---
+## 👩🏽‍💻 ¿De dónde son los datos?
+
+Los datos fueron obtenidos de https://www.kaggle.com/datasets/yukawithdata/taylor-swift-the-eras-tour-official-setlist-data
+
 
