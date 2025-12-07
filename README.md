@@ -2,6 +2,11 @@
 
 Este proyecto explora patrones musicales en canciones del **Eras Tour** mediante **Análisis de Componentes Principales (PCA)**. El objetivo es identificar dimensiones latentes como **Intensidad/Energía**, **Bailabilidad/Positividad** y **Textura Acústico–Vocal**, y visualizar cómo se agrupan las canciones por era.
 
+En este análisis, la era se usó para etiquetar y agrupar las observaciones en las visualizaciones (por ejemplo, colorear puntos en el biplot o crear gráficos de barras por era).
+Esto permite interpretar los patrones encontrados en las componentes principales en relación con categorías relevantes, sin alterar el modelo PCA.
+
+Fue un gran desafío, pero fue una forma entretenida de aprender a hacer PCA.
+
 ---
 
 ## 📂 Estructura del proyecto
@@ -14,13 +19,16 @@ Este proyecto explora patrones musicales en canciones del **Eras Tour** mediante
 
 ## 🔍 ¿Qué incluye?
 
-- **Preprocesamiento**: Limpieza y etiquetado de canciones por era.
-- **Análisis PCA**: Reducción de dimensionalidad y cálculo de varianza explicada.
-- **Visualizaciones**:
-  - Scree Plot con % de varianza.
-  - Biplot PC1 vs PC2 con subtítulo dinámico.
-  - Heatmap de cargas (PC1–PC3) con etiquetas descriptivas.
-  - Barras por era con paleta personalizada inspirada en el Eras Tour.
+- 🧹 **Preprocesamiento**: Limpieza y etiquetado de canciones por era.
+- 📋 **Análisis PCA**: Reducción de dimensionalidad y cálculo de varianza explicada.
+- 📊 **Visualizaciones**:
+1. Scree Plot PCA
+2. Varianza Explicada PCA
+3. Indicador 1 PCA **Intensidad/Energía** por Eras
+4. Relación entre observaciones y variables
+5. Heatmap
+6. Mapa **Intensidad/Energía** vs **Bailabilidad/Positividad** de las canciones
+
 
 ---
 
@@ -47,22 +55,5 @@ El proyecto utiliza una **paleta Swifty** y un tema personalizado (`eras_theme`)
    git clone https://github.com/tuusuario/eras-tour-pca.git
    cd eras-tour-pca
 2. Ejecuta el script
-
-
----
-
-## 📊 Visualización de datos
-
-1. Scree Plot PCA
-
-2. Varianza Explicada PCA
-
-3. Indicador 1 PCA **Intensidad/Energía** por Eras
-  
-4. Relación entre observaciones y variables
-
-5. Heatmap
-
-6. Mapa **Intensidad/Energía** vs **Bailabilidad/Positividad** de las canciones
 
 
