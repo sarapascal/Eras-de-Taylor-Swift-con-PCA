@@ -26,19 +26,18 @@ Fue un gran desafío, pero fue una forma entretenida de aprender a hacer PCA.
 - Este gráfico muestra la proporción de varianza explicada por cada componente principal, destacando que PC1 (Intensidad/Energía) y PC2 (Acústico/Folk) concentran la mayor parte de la información.
    <img width="1222" height="994" alt="Scree Plot PCA" src="https://github.com/user-attachments/assets/db863dd8-483b-4bb8-8ee0-9d16b9c2ba3f" />
 
-2. **Varianza Explicada PCA**
-   - Este gráfico muestra la proporción de varianza explicada por cada componente principal, destacando que PC1 (Intensidad/Energía) y PC2 (Acústico/Folk) concentran la mayor parte de la información.
-<img width="1014" height="824" alt="Varianza explicada Scree Plot" src="https://github.com/user-attachments/assets/847f356e-97da-4612-be93-53a24929bddd" />
    
-3. **Relación entre observaciones y variables**
+2. **Relación entre observaciones y variables**
 - Este gráfico revela qué variables influyen en cada componente: PC1 está dominado por métricas de energía y volumen, mientras PC2 refleja atributos acústicos y de positividad. Permite interpretar cómo cada característica contribuye a la estructura del PCA. 
 <img width="1334" height="994" alt="Relación entre observaciones y variables" src="https://github.com/user-attachments/assets/fa403f63-7b3c-402c-a53b-a9b806e97291" />
 
-4. **Heatmap**
+
+3. **Heatmap**
 - Evidencia patrones por era, destacando cómo álbumes contrastan en energía y atmósfera. En conjunto, el PCA explica cómo estas dimensiones capturan las diferencias esenciales entre eras y estilos.
 <img width="1652" height="994" alt="Heatmap de cargas" src="https://github.com/user-attachments/assets/d2b71e5f-7a92-4b59-b8eb-ddf8053a092c" />
+
    
-5. **Mapa **Intensidad/Energía** vs **Bailabilidad/Positividad** de las canciones**
+4. **Mapa **Intensidad/Energía** vs **Bailabilidad/Positividad** de las canciones**
 - Este biplot combina PC1 (Intensidad/Energía) y PC2 (Acústico/Folk), mostrando cómo se distribuyen las canciones entre potencia y atmósfera. Canciones más bailables y positivas se agrupan hacia un extremo, mientras las más introspectivas se ubican en el otro.
 <img width="1652" height="994" alt="Mapa Intensidad Energía vs Bailabilidad Positividad de canciones" src="https://github.com/user-attachments/assets/1bd59505-8e98-4fbd-a00d-039e7939a0c2" />
 
